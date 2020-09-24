@@ -4,7 +4,22 @@ import renderer from 'react-test-renderer';
 import { DEFAULT_APPLICATION } from '.';
 import { User } from './user';
 
+// expo-secure-storage is not available in this test environment, hence it is mocked here
+jest.mock('expo-secure-store', () => {
+    const store = {}
 
+    return {
+        getItemAsync: async (key) => {
+            return store[key]
+        },
+        setItemAsync: async (key, value) => {
+            store[key] = value
+        },
+        deleteItemAsync: async (key) => {
+            delete store[key]
+        }
+    }
+});
 
 describe('Authentication Tests', () => {
     // used to randomize address
