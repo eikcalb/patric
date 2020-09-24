@@ -43,7 +43,7 @@ export default function App() {
     <Root>
       <APPLICATION_CONTEXT.Provider value={DEFAULT_APPLICATION} >
         <APP_AUTH_CONTEXT.Provider value={authContext}>
-           <Skeleton>
+          <Skeleton />
         </APP_AUTH_CONTEXT.Provider>
       </APPLICATION_CONTEXT.Provider>
     </Root>

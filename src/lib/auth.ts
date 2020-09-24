@@ -1,9 +1,7 @@
-import { Application, auth } from "."
-import validator from 'validator'
 import * as SecureStorage from "expo-secure-store";
-import * as Facebook from "expo-facebook";
+import validator from 'validator';
+import { Application } from ".";
 import { User } from "./user";
-import { CONSTANTS } from "./storage";
 
 export default class Auth {
     app: Application
@@ -12,34 +10,36 @@ export default class Auth {
         this.app = app
     }
 
-    static async saveRefreshToken(token) {
-        return SecureStorage.setItemAsync(CONSTANTS.refreshToken, token)
-    }
 
+    /**
+     * Logic for authenticating user.
+     * @param username 
+     * @param password 
+     */
     async login(username, password) {
         try {
             await this.validateLogin({ email: username, password })
-          const objectRaw = await SecureStorage.getItemAsync(`protected.${username}`)
-            if(!objectRaw){
-                
+            const objectRaw = await SecureStorage.getItemAsync(`protected.${username}`)
+            if (!objectRaw) {
+                throw new Error('User not found!')
             }
-            const jsonResponse = await response.json()
-            await auth.signInWithCustomToken(jsonResponse.firebaseToken).catch(function (error) {
-                let errorCode = error.code;
-                if (errorCode === 'auth/invalid-custom-token') {
-                    console.log('The token you provided is not valid.', error);
-                }
-                throw new Error("Authentication failed!")
-            })
-            await Auth.saveRefreshToken(jsonResponse.refreshToken)
-            delete jsonResponse.firebaseToken
-            delete jsonResponse.refreshToken
-            return jsonResponse
+            const user = JSON.parse(objectRaw)
+
+            if (user.password !== password) {
+                throw new Error("Password is incorrect")
+            }
+
+            return new User(user)
         } catch (e) {
             throw e
         }
     }
 
+    /**
+     * Validates the user's credential.
+     * 
+     * @param {email,password}
+     */
     protected validateLogin({ email, password }) {
         return new Promise((res, rej) => {
             if (email && password) {
@@ -47,93 +47,40 @@ export default class Auth {
                 if (!validator.isEmail(email)) return rej(new Error("Invalid email!"))
                 if (!validator.matches(password, new RegExp('^[a-zA-Z0-9]{6,30}$'))) return rej(new Error("Password format is incorrect!"))
             } else {
-                return rej(new Error("email and password must be provided"))
+                return rej(new Error("Email and password must be provided"))
             }
             res(true)
         })
     }
 
-    async requestPhoneVerification(data) {
-        if (!this.app.signedIn()) throw new Error("You must sign in to continue!")
-        try {
-            const response = await this.app.initiateNetworkRequest(`${this.app.config.applicationHost}/api/persons/prepare`, {
-                method: 'POST',
-                referrerPolicy: "no-referrer",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'x-access-token': this.app.user!.token
-                },
-                body: JSON.stringify(data)
-            })
-            if (!response.ok) {
-                throw new Error((await response.json()).error)
-            }
-
-            return await response.json()
-        } catch (e) {
-            throw e
-        }
-    }
-
-    async verifyPhone(data) {
-        if (!this.app.signedIn()) throw new Error("You must sign in to continue!")
-        try {
-            const response = await this.app.initiateNetworkRequest(`${this.app.config.applicationHost}/api/persons/verify`, {
-                method: 'POST',
-                referrerPolicy: "no-referrer",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json',
-                    'x-access-token': this.app.user!.token
-                },
-                body: JSON.stringify(data)
-            })
-            if (!response.ok) {
-                throw new Error((await response.json()).error)
-            }
-
-            return
-        } catch (e) {
-            throw e
-        }
-    }
-
+    /**
+     * Logic for registering user into application
+     * 
+     * @param data 
+     */
     async register(data) {
-        const { email, firstName, lastName, password, country, dateOfBirth, role } = data
+        const { email} = data
         try {
             await this.validateRegister(data)
 
-            const response = await this.app.initiateNetworkRequest(`${this.app.config.applicationHost}/api/persons/new`, {
-                method: 'POST',
-                referrerPolicy: "no-referrer",
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
-                },
-                body: JSON.stringify({ email, firstName, lastName, password, country, dateOfBirth, role })
-            })
-            if (!response.ok) {
-                throw new Error((await response.json()).error)
+            const objectRaw = await SecureStorage.getItemAsync(`protected.${email}`)
+            if (objectRaw) {
+                throw new Error('User already exists!')
             }
+            const user = JSON.stringify(data)
+            await SecureStorage.setItemAsync(`protected.${email}`, user)
 
-            const jsonResponse = await response.json()
-            await auth.signInWithCustomToken(jsonResponse.firebaseToken).catch(function (error) {
-                let errorCode = error.code;
-                if (errorCode === 'auth/invalid-custom-token') {
-                    console.log('The token you provided is not valid.', error);
-                }
-                throw new Error("Authentication failed!")
-            })
-            await Auth.saveRefreshToken(jsonResponse.refreshToken)
-            delete jsonResponse.firebaseToken
-            delete jsonResponse.refreshToken
-            return jsonResponse
+            return new User(data)
         } catch (e) {
             throw e
         }
     }
 
+    /**
+     * Validates user data upon registration
+     * 
+     * @param { email, password, firstName, lastName, country, dateOfBirth, role } 
+     */
     protected validateRegister({ email, password, firstName, lastName, country, dateOfBirth, role }) {
         return new Promise((res, rej) => {
             if (email && password && firstName && lastName && country && dateOfBirth && role) {
@@ -148,25 +95,5 @@ export default class Auth {
 
             res(true)
         })
-    }
-
-    async loginViaFacebook() {
-        try {
-            await Facebook.initializeAsync('1978376125777682');
-            const {
-                type,
-                token,
-            }: any = await Facebook.logInWithReadPermissionsAsync({
-                permissions: ['public_profile'],
-            });
-            if (type === 'success') {
-                // Get the user's name using Facebook's Graph API
-                const response = await this.app.initiateNetworkRequest(`https://graph.facebook.com/me?fields=birthday,hometown,email&access_token=${token}`);
-            } else {
-                // type === 'cancel'
-            }
-        } catch ({ message }) {
-            console.error(`Facebook Login Error: ${message}`);
-        }
     }
 }

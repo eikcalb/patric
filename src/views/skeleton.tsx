@@ -3,6 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
 import { APPLICATION_CONTEXT, APP_AUTH_CONTEXT } from '../lib';
 import { Home } from './home';
+import { Login } from './login';
+import { Register } from './register';
 
 const NavStack = createStackNavigator()
 
@@ -20,14 +22,11 @@ export function Skeleton() {
                     authCTX.signedIn ? (
                         <>
                             <NavStack.Screen name='Home' component={Home} />
-                            </>
+                        </>
                     ) : (
                             <>
-                                <NavStack.Screen name="Home" component={Splash} />
-                                <NavStack.Screen name='Welcome' component={Welcome} />
-                                <NavStack.Screen name='Genre' component={Genre} />
-                                <NavStack.Screen name='Loading' component={Loading} />
-                                <NavStack.Screen name='PhoneVerification' component={PhoneVerification} />
+                                <NavStack.Screen name="Login" component={Login} />
+                                <NavStack.Screen name='Register' component={Register} />
                             </>
                         )}
             </NavStack.Navigator>

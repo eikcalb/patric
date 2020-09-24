@@ -3,6 +3,7 @@ import { DEFAULT_CONFIG, IConfig } from "./config";
 import { User } from "./user";
 import * as SecureStorage from 'expo-secure-store'
 import { launchImageLibraryAsync, MediaTypeOptions } from "expo-image-picker";
+import Auth from "./auth";
 
 
 /**
@@ -79,14 +80,32 @@ export class Application {
         return false
     }
 
-
+    /**
+     * Authenticates the user to access application
+     * @param email 
+     * @param password 
+     */
     async loginUser(email, password): Promise<User> {
         const response = await new Auth(this).login(email, password)
         this.user = new User(response)
         await this.persistUserSession()
+
+        // Return user object 
         return this.user
     }
 
+    /**
+     * Registers a new user to application
+     * @param data 
+     */
+    async registerUser(data: { email, firstName, lastName, password }): Promise<User> {
+        const response = await new Auth(this).register(data)
+        this.user = new User(response)
+        await this.persistUserSession()
+
+        // Return the new user object
+        return this.user
+    }
 }
 
 export const DEFAULT_APPLICATION = new Application(DEFAULT_CONFIG)
