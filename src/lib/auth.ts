@@ -119,7 +119,8 @@ export default class Auth {
             if (!objectRaw) {
                 throw new Error('User not found!')
             }
-            if (JSON.parse(objectRaw) !== password) {
+
+            if (JSON.parse(objectRaw).password !== password) {
                 throw new Error('Password is incorrect')
             }
             await SecureStorage.deleteItemAsync(key)

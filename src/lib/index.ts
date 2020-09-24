@@ -116,6 +116,9 @@ export class Application {
      * @param password 
      */
     async deleteUser(email, password): Promise<boolean> {
+        if(!email|| !password){
+            throw new Error('Data not provided!')
+        }
         return new Auth(this).deleteUser(email, password)
     }
 }

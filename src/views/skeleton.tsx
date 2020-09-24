@@ -1,6 +1,7 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import React, { useContext } from 'react';
+import { Platform } from 'react-native';
 import { APPLICATION_CONTEXT, APP_AUTH_CONTEXT } from '../lib';
 import { Home } from './home';
 import { Login } from './login';
@@ -31,13 +32,13 @@ export function Skeleton() {
                                     gestureDirection: 'vertical',
                                     gestureEnabled: true,
                                     cardOverlayEnabled: true,
-                                    cardStyle: { backgroundColor: 'transparent' }
+                                    cardStyle: Platform.OS === 'android' ? { backgroundColor: 'transparent' } : null
                                 }} name="Login" component={Login} />
                                 <NavStack.Screen options={{
                                     gestureDirection: 'vertical',
                                     gestureEnabled: true,
                                     cardOverlayEnabled: true,
-                                    cardStyle: { backgroundColor: 'transparent' }
+                                    cardStyle: Platform.OS === 'android' ? { backgroundColor: 'transparent' } : null
                                 }} name='Register' component={Register} />
                             </>
                         )}

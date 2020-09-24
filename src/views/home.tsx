@@ -1,8 +1,8 @@
 import { useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ActionSheet, Button, Container, Content, Root, Text, Thumbnail, View } from 'native-base';
-import React, { useCallback, useContext } from 'react';
+import { ActionSheet, Button, Container, Content, Icon, Input, Item, Root, Spinner, Text, Thumbnail, View } from 'native-base';
+import React, { useCallback, useContext, useState } from 'react';
 import { Modal, StyleSheet, TouchableNativeFeedback } from 'react-native';
 import { ShowToast } from '../components/utils';
 import { APPLICATION_CONTEXT, APP_AUTH_CONTEXT } from '../lib';
@@ -25,6 +25,7 @@ export function HomePage() {
     const ctx = useContext(APPLICATION_CONTEXT)
     const authCTX = useContext(APP_AUTH_CONTEXT)
     const navigation = useNavigation()
+    const [state, setState] = useState({ loading: false, passwordShow: false, password: '', showModal: false })
 
     // Callback for when the photo space is touched.
     const onPressPhoto = () => {
@@ -54,6 +55,17 @@ export function HomePage() {
             })
     }, [])
 
+    const onDeleteAccount = useCallback((password) => {
+        ctx.deleteUser(ctx.user?.email, password)
+            .then(() => authCTX.setSignedInState(false))
+            .catch(e => {
+                ShowToast({
+                    text: e.message || 'Failed to delete account',
+                    type: 'danger'
+                })
+            })
+    }, [])
+
     const user = ctx.user!
 
     return (
@@ -75,10 +87,33 @@ export function HomePage() {
 
                     <View style={styles.profileContent}>
                         <Text style={styles.email}>{ctx.user?.email}</Text>
-                        <Button success rounded block onPress={onLogoutPress} style={styles.Input}>
-                            <Text>LOGOUT</Text>
-                        </Button>
+                        <View style={styles.options}>
+                            <Button success rounded block onPress={onLogoutPress} style={styles.Input}>
+                                <Text>LOGOUT</Text>
+                            </Button>
+                            <Button danger rounded block onPress={() => setState({ ...state, showModal: true })} style={styles.Input}>
+                                <Text>DELETE ACCOUNT</Text>
+                            </Button>
+                        </View>
                     </View>
+                    {state.showModal ? (
+                        <View style={[StyleSheet.absoluteFill, styles.modal]}>
+                            <View style={styles.LoginBody}>
+                                <Button danger rounded transparent onPress={() => setState({ ...state, showModal: false })} style={styles.backButton}>
+                                    <Icon name='close-circle' />
+                                </Button>
+                                <View style={styles.LoginForm}>
+                                    <Item rounded last style={styles.LoginInput}>
+                                        <Input textContentType='password' secureTextEntry={!state.passwordShow} autoCapitalize='none' placeholder="Re-enter password to confirm" value={state.password} onChangeText={password => { setState({ ...state, password }) }} />
+                                        <Icon active name={state.passwordShow ? 'eye-off' : 'eye'} onPress={() => setState({ ...state, passwordShow: !state.passwordShow })} />
+                                    </Item>
+                                    <Button disabled={state.loading} danger rounded block onPress={() => onDeleteAccount(state.password)} style={styles.Input}>
+                                        {state.loading ? <Spinner color='white' size='small' /> : <Text>DELETE ACCOUNT</Text>}
+                                    </Button>
+                                </View>
+                            </View>
+                        </View>
+                    ) : null}
                 </Content>
             </Container >
         </Root>
@@ -86,6 +121,52 @@ export function HomePage() {
 }
 
 const styles = StyleSheet.create({
+    loginContainer: { backgroundColor: 'transparent', flex: 1 },
+    backButton: { alignSelf: 'flex-end', position: 'absolute', end: -8, top: -8 },
+    loginContentContainer: { flex: 1, justifyContent: 'center', padding: 16 },
+    LoginRoot: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'stretch',
+        backgroundColor: 'transparent'
+    },
+    LoginBody: {
+        margin: 20,
+        backgroundColor: "white",
+        borderRadius: 16,
+        padding: 8,
+        alignItems: "stretch",
+        shadowColor: "#000",
+        justifyContent: 'flex-start',
+        shadowOffset: {
+            width: 0,
+            height: 2
+        },
+        shadowOpacity: 0.5,
+        shadowRadius: 3.84,
+        elevation: 5
+    },
+    LoginForm: {
+        justifyContent: 'space-between',
+        alignItems: 'stretch',
+        margin: 8,
+        marginTop: 32,
+        flexGrow: 1
+    },
+    LoginInput: {
+        marginVertical: 8
+    },
+    modal: {
+        flex: 1,
+        justifyContent: 'center',
+        backgroundColor: '#000e'
+    },
+    options: {
+        alignSelf: 'stretch',
+        justifyContent: 'center',
+        padding: 16,
+        flex: 1
+    },
     root: { backgroundColor: 'white', flex: 1 },
     photoContainer: {
         alignSelf: 'stretch',
