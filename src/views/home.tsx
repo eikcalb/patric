@@ -4,7 +4,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { ActionSheet, Button, Container, Content, Icon, Input, Item, Root, Spinner, Text, Thumbnail, View } from 'native-base';
 import React, { useCallback, useContext, useState } from 'react';
 import { Modal, StyleSheet, TouchableNativeFeedback } from 'react-native';
-import { ShowToast } from '../components/utils';
+import { HorizontalView, ShowToast } from '../components/utils';
 import { APPLICATION_CONTEXT, APP_AUTH_CONTEXT } from '../lib';
 import { ProfilePhoto } from './setphoto';
 
@@ -86,7 +86,12 @@ export function HomePage() {
                     </View>
 
                     <View style={styles.profileContent}>
-                        <Text style={styles.email}>{ctx.user?.email}</Text>
+                        <HorizontalView style={{
+                            margin:8,
+                            alignItems:'center'}}>
+                            <Icon name='mail' />
+                            <Text style={styles.email}>{ctx.user?.email}</Text>
+                        </HorizontalView>
                         <View style={styles.options}>
                             <Button success rounded block onPress={onLogoutPress} style={styles.Input}>
                                 <Text>LOGOUT</Text>
@@ -189,7 +194,7 @@ const styles = StyleSheet.create({
         color: 'white', margin: 8, textTransform: 'capitalize', fontWeight: 'bold', fontSize: 28
     },
     email: {
-        color: 'black', margin: 8, textTransform: 'capitalize'
+        color: 'black', margin: 8, fontSize:20,textTransform: 'lowercase',fontWeight:'bold'
     },
     thumbnail: {
         height: 120,
