@@ -23,17 +23,7 @@ export function Register() {
 }
 
 function RegisterForm({ onSuccess, onRequestClose }) {
-    const defaultState = {
-        passwordShow: false,
-        passwordVerifyShow: false,
-        firstName: 'john',
-        lastName: 'doe',
-        email: 'zz@gmail.com',
-        password: 'Qwerty00',
-        passwordVerify: 'Qwerty00',
-        loading: false
-    }
-    const [state, setState] = useState(defaultState || {
+    const [state, setState] = useState( {
         passwordShow: false,
         passwordVerifyShow: false,
         firstName: '',

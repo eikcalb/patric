@@ -29,11 +29,15 @@ export function Skeleton() {
                                 <NavStack.Screen name='Splash' component={Splash} />
                                 <NavStack.Screen options={{
                                     gestureDirection: 'vertical',
-                                    gestureEnabled: true
+                                    gestureEnabled: true,
+                                    cardOverlayEnabled: true,
+                                    cardStyle: { backgroundColor: 'transparent' }
                                 }} name="Login" component={Login} />
                                 <NavStack.Screen options={{
                                     gestureDirection: 'vertical',
-                                    gestureEnabled: true
+                                    gestureEnabled: true,
+                                    cardOverlayEnabled: true,
+                                    cardStyle: { backgroundColor: 'transparent' }
                                 }} name='Register' component={Register} />
                             </>
                         )}

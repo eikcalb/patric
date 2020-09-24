@@ -68,8 +68,8 @@ export class Application {
         if (res.cancelled) {
             throw new Error("Media selection cancelled!")
         }
-        console.log(res)
-        return { uri: res.uri, type: res.type, height: res.height, width: res.width }
+
+        return { uri: `data:image/jpeg;base64,${res.base64}`, type: res.type, height: res.height, width: res.width }
     }
 
     /**
@@ -77,16 +77,9 @@ export class Application {
      * 
      * Saves photo provided
      */
-    async uploadProfilePicture({ uri, type }) {
-        const form: any = new FormData()
-        const uriSplit = uri.split("/")
-        form.append('data', {
-            uri,
-            type,
-            name: uriSplit[uriSplit.length - 1]
-        })
-
-        return false
+    async uploadProfilePicture({ uri }) {
+        this.user!.thumbnailURL = uri
+        await this.persistUserSession()
     }
 
     /**
@@ -122,8 +115,8 @@ export class Application {
      * @param email 
      * @param password 
      */
-    async deleteUser(email,password):Promise<boolean>{
-        return new Auth(this).deleteUser(email,password)
+    async deleteUser(email, password): Promise<boolean> {
+        return new Auth(this).deleteUser(email, password)
     }
 }
 

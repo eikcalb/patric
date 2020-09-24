@@ -20,6 +20,7 @@ export function Splash() {
                         <View style={styles.body}>
                             <View style={styles.title}>
                                 <Text style={styles.titleText}>PATRIC</Text>
+                                <Icon style={styles.titleIcon} name='nature-people' type='MaterialIcons' />
                             </View>
                             <View style={styles.options}>
                                 <Button success rounded block onPress={() => navigation.navigate('Login')} style={styles.button}>
@@ -43,12 +44,17 @@ const styles = StyleSheet.create({
     title: {
         paddingVertical: 20,
     },
+    titleIcon: {
+        color: '#a418',
+        textAlign: 'center',
+        fontSize: 80
+    },
     titleText: {
         marginVertical: 32,
         fontWeight: 'bold',
         fontSize: 44,
         textAlign: 'center',
-        color:'#000',
+        color: '#000',
         textAlignVertical: 'center',
     },
     contentContainer: {
@@ -70,7 +76,7 @@ const styles = StyleSheet.create({
     },
     bodyCover: {
         flex: 1,
-        justifyContent:'center'
+        justifyContent: 'center'
     },
     body: {
         margin: 20,

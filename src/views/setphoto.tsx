@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { requestCameraRollPermissionsAsync } from 'expo-image-picker';
 import { Button, Container, Content, Icon, Root, Spinner, Text, View } from 'native-base';
-import React, { useContext, useState } from 'react';
+import React, { useCallback, useContext, useState } from 'react';
 import { Image, Platform, StyleSheet } from 'react-native';
 import { ShowToast } from '../components/utils';
 import { APPLICATION_CONTEXT } from '../lib';
@@ -11,6 +11,58 @@ export function ProfilePhoto() {
     const ctx = useContext(APPLICATION_CONTEXT)
     const [state, setState] = useState<{ media: undefined | { uri: string, type?: string }, loading: boolean, loadingMedia: boolean, success: boolean }>(Default_State)
     const navigation = useNavigation()
+
+    /**
+     * Triggered to open image picker
+     */
+    const onSelectMedia = useCallback(async () => {
+        try {
+            setState({ ...state, loadingMedia: true })
+            if (Platform.OS === 'ios') {
+                let perms = await requestCameraRollPermissionsAsync()
+                if (!perms.granted) {
+                    ShowToast({ text: 'Access to media library denied!', type: 'danger' })
+                    setState({ ...state, loadingMedia: false })
+                    return
+                }
+            }
+            const media = await ctx.getMediaPicture()
+            console.log(media)
+            setState({ ...state, media: { uri: media.uri }, loadingMedia: false })
+        } catch (e) {
+            ShowToast({ text: e.message, type: 'danger' })
+            setState({ ...state, loadingMedia: false })
+        }
+    }, [state])
+
+    /**
+     * Logic to upload image
+     */
+    const onUpload = useCallback(async () => {
+        setState({ ...state, loading: true })
+        try {
+            if (!ctx.user) {
+                ShowToast({
+                    type: 'danger',
+                    text: "No user to upload"
+                })
+                return setState({ ...state, loading: false, success: false })
+            }
+            await ctx.uploadProfilePicture({ uri: state.media?.uri })
+            setState({ ...state, loading: false, success: true })
+            ShowToast({
+                type: 'success',
+                text: 'Successfully updated photo'
+            })
+        } catch (e) {
+            console.error(e)
+            setState({ ...state, loading: false, success: false })
+            ShowToast({
+                type: 'danger',
+                text: e.message || "Failed to upload profile picture"
+            })
+        }
+    }, [state])
 
     return (
         <Root>
@@ -42,51 +94,10 @@ export function ProfilePhoto() {
                             backgroundColor: 'black',
                             justifyContent: 'center', alignItems: 'center',
                         }]}>
-                            <Button block rounded disabled={state.loading} style={styles.mediaButton} onPress={async () => {
-                                try {
-                                    setState({ ...state, loadingMedia: true })
-                                    if (Platform.OS === 'ios') {
-                                        let perms = await requestCameraRollPermissionsAsync()
-                                        if (!perms.granted) {
-                                            ShowToast({ text: 'Access to media library denied!', type: 'danger' })
-                                            setState({ ...state, loadingMedia: false })
-                                            return
-                                        }
-                                    }
-                                    const media = await ctx.getMediaPicture()
-                                    setState({ ...state, media: { uri: media.uri }, loadingMedia: false })
-                                } catch (e) {
-                                    ShowToast({ text: e.message, type: 'danger' })
-                                    setState({ ...state, loadingMedia: false })
-                                }
-                            }} >
+                            <Button block rounded disabled={state.loading} style={styles.mediaButton} onPress={onSelectMedia} >
                                 {state.loadingMedia ? <Spinner color='black' size='small' /> : <Text style={styles.mediaButtonText}>Select Media</Text>}
                             </Button>
-                            <Button block rounded disabled={!state.media || state.loading} style={[styles.mediaButton, !state.media ? { backgroundColor: '#aaa' } : null]} onPress={async () => {
-                                setState({ ...state, loading: true })
-                                try {
-                                    if (!ctx.user) {
-                                        ShowToast({
-                                            type: 'danger',
-                                            text: "No user to upload"
-                                        })
-                                        return setState({ ...state, loading: false, success: false })
-                                    }
-                                    const resp = await ctx.uploadProfilePicture({ uri: state.media?.uri, type: "image/png" })
-                                    setState({ ...state, loading: false, success: true })
-                                    ShowToast({
-                                        type: 'success',
-                                        text: 'Successfully updated photo'
-                                    })
-                                } catch (e) {
-                                    console.error(e)
-                                    setState({ ...state, loading: false, success: false })
-                                    ShowToast({
-                                        type: 'danger',
-                                        text: e.message || "Failed to upload profile picture"
-                                    })
-                                }
-                            }}>
+                            <Button block rounded disabled={!state.media || state.loading} style={[styles.mediaButton, !state.media ? { backgroundColor: '#aaa' } : null]} onPress={onUpload}>
                                 {state.loading ? <Spinner color='black' size='small' /> : <Text style={styles.mediaButtonText}>Upload</Text>}
                             </Button>
                         </View>
@@ -100,7 +111,15 @@ export function ProfilePhoto() {
 
 const styles = StyleSheet.create({
     root: {
-        backgroundColor: 'transparent'
+        backgroundColor: 'black',
+        flex: 1,
+        justifyContent: 'center'
+    },
+    rootContainer: {
+        flex: 1,
+        backgroundColor: 'black',
+        justifyContent: 'center',
+        alignItems: 'stretch'
     },
     headerButtonIcon: {
         color: 'white',
@@ -135,7 +154,6 @@ const styles = StyleSheet.create({
     },
     mediaButton: {
         margin: 8,
-        backgroundColor: 'white',
     },
     mediaButtonText: {
         color: 'black',

@@ -81,7 +81,7 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'stretch',
-        backgroundColor: '#1114'
+        backgroundColor: 'transparent'
     },
     LoginBody: {
         margin: 20,

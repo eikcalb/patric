@@ -1,7 +1,7 @@
 import { useNavigation } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { LinearGradient } from 'expo-linear-gradient';
-import { ActionSheet, Button, Container, Content, Text, Thumbnail, View } from 'native-base';
+import { ActionSheet, Button, Container, Content, Root, Text, Thumbnail, View } from 'native-base';
 import React, { useCallback, useContext } from 'react';
 import { Modal, StyleSheet, TouchableNativeFeedback } from 'react-native';
 import { ShowToast } from '../components/utils';
@@ -27,7 +27,7 @@ export function HomePage() {
     const navigation = useNavigation()
 
     // Callback for when the photo space is touched.
-    const onPressPhoto = useCallback(() => {
+    const onPressPhoto = () => {
         ActionSheet.show({
             title: "Select an action",
             options: [
@@ -41,7 +41,7 @@ export function HomePage() {
                     break;
             }
         })
-    }, [])
+    }
 
     const onLogoutPress = useCallback(() => {
         ctx.deleteUserSession()
@@ -57,29 +57,32 @@ export function HomePage() {
     const user = ctx.user!
 
     return (
-        <Container style={styles.root}>
-            {/* @ts-ignore */}
-            <Content bounces={false} contentContainerStyle={styles.content}>
-                <View>
-                    {/* @ts-ignore */}
-                    <LinearGradient colors={['black', 'white']} start={[0, 0.7]} end={[0, 0.71]} locations={[0, 0.5]} >
-                        <View padder style={styles.photoContainer}>
-                            <Text style={styles.fullnameTitle}>{`${ctx.user?.firstName} ${ctx.user?.lastName}`}</Text>
-                            <TouchableNativeFeedback onPress={onPressPhoto}>
-                                <Thumbnail style={styles.thumbnail} large source={{ uri: ctx.user?.thumbnailURL }} defaultSource={require('../../assets/icon.png')} />
-                            </TouchableNativeFeedback>
-                        </View>
-                    </LinearGradient>
-                </View>
+        <Root>
+            <Container style={styles.root}>
+                {/* @ts-ignore */}
+                <Content bounces={false} contentContainerStyle={styles.content}>
+                    <View>
+                        {/* @ts-ignore */}
+                        <LinearGradient colors={['black', 'white']} start={[0, 0.7]} end={[0, 0.71]} locations={[0, 0.5]} >
+                            <View padder style={styles.photoContainer}>
+                                <Text style={styles.fullnameTitle}>{`${ctx.user?.firstName} ${ctx.user?.lastName}`}</Text>
+                                <TouchableNativeFeedback onPress={onPressPhoto}>
+                                    <Thumbnail style={styles.thumbnail} large source={{ uri: ctx.user?.thumbnailURL }} defaultSource={require('../../assets/icon.png')} />
+                                </TouchableNativeFeedback>
+                            </View>
+                        </LinearGradient>
+                    </View>
 
-                <View style={styles.profileContent}>
-                    <Text style={styles.email}>{ctx.user?.email}</Text>
-                    <Button success rounded block onPress={onLogoutPress} style={styles.Input}>
-                        <Text>LOGOUT</Text>
-                    </Button>
-                </View>
-            </Content>
-        </Container >)
+                    <View style={styles.profileContent}>
+                        <Text style={styles.email}>{ctx.user?.email}</Text>
+                        <Button success rounded block onPress={onLogoutPress} style={styles.Input}>
+                            <Text>LOGOUT</Text>
+                        </Button>
+                    </View>
+                </Content>
+            </Container >
+        </Root>
+    )
 }
 
 const styles = StyleSheet.create({
