@@ -5,6 +5,7 @@ import { APPLICATION_CONTEXT, APP_AUTH_CONTEXT } from '../lib';
 import { Home } from './home';
 import { Login } from './login';
 import { Register } from './register';
+import { Splash } from './splash';
 
 const NavStack = createStackNavigator()
 
@@ -25,8 +26,15 @@ export function Skeleton() {
                         </>
                     ) : (
                             <>
-                                <NavStack.Screen name="Login" component={Login} />
-                                <NavStack.Screen name='Register' component={Register} />
+                                <NavStack.Screen name='Splash' component={Splash} />
+                                <NavStack.Screen options={{
+                                    gestureDirection: 'vertical',
+                                    gestureEnabled: true
+                                }} name="Login" component={Login} />
+                                <NavStack.Screen options={{
+                                    gestureDirection: 'vertical',
+                                    gestureEnabled: true
+                                }} name='Register' component={Register} />
                             </>
                         )}
             </NavStack.Navigator>

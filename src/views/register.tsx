@@ -60,68 +60,58 @@ function RegisterForm({ onSuccess, onRequestClose }) {
 
     return (
         <Root>
-            <Container style={styles.RegisterRoot}>
-                {/* @ts-ignore */}
-                <Content bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={styles.RegisterBody}>
-                    <View style={styles.RegisterBodyHeader}>
-                        <Text style={{ color: 'white', fontWeight: 'bold' }}>SIGN UP</Text>
-                        <Button dark onPress={onRequestClose} style={{ alignSelf: 'flex-end' }}>
-                            <Icon name='close' />
-                        </Button>
-                    </View>
+            <BlurView tint='dark' intensity={100} style={styles.LoginRoot}>
+                <Container style={styles.container}>
+                    {/* @ts-ignore */}
+                    <Content bounces={false} showsVerticalScrollIndicator={false} contentContainerStyle={styles.contentContainer}>
+                        <View style={styles.RegisterBody}>
+                            <Button danger rounded transparent onPress={onRequestClose} style={styles.backButton}>
+                                <Icon name='close-circle' />
+                            </Button>
+                            <Form style={styles.RegForm}>
+                                <Item rounded last style={styles.Input}>
+                                    <Input placeholder='First Name' value={state.firstName} onChangeText={firstName => { setState({ ...state, firstName }) }} />
+                                </Item>
+                                <Item rounded last style={styles.Input}>
+                                    <Input placeholder='Last Name' value={state.lastName} onChangeText={lastName => { setState({ ...state, lastName }) }} />
+                                </Item>
+                                <Item rounded last style={styles.Input}>
+                                    <Input textContentType='emailAddress' placeholder="Email" value={state.email} autoCapitalize='none' onChangeText={email => { setState({ ...state, email }) }} />
+                                </Item>
+                                <Item rounded last style={styles.Input}>
+                                    <Input textContentType='password' secureTextEntry={!state.passwordShow} autoCapitalize='none' placeholder="Enter Password" value={state.password} onChangeText={password => { setState({ ...state, password }) }} />
+                                    <Icon active name={state.passwordShow ? 'eye-off' : 'eye'} onPress={() => setState({ ...state, passwordShow: !state.passwordShow })} />
+                                </Item>
+                                <Item rounded last style={styles.Input}>
+                                    <Input textContentType='password' secureTextEntry={!state.passwordVerifyShow} placeholder="Repeat your password" value={state.passwordVerify} onChangeText={passwordVerify => { setState({ ...state, passwordVerify }) }} />
+                                    <Icon active name={state.passwordShow ? 'eye-off' : 'eye'} onPress={() => setState({ ...state, passwordShow: !state.passwordShow })} />
+                                </Item>
 
-                    <Form style={styles.RegisterForm}>
-                        <HorizontalView>
-                            <Item rounded last style={[styles.RegisterInput, { flex: 1, paddingStart: 8 }]}>
-                                <Input placeholder='First Name' value={state.firstName} onChangeText={firstName => {
-                                    setState({ ...state, firstName })
-                                }} />
-                            </Item>
-                            <Item rounded last style={[styles.RegisterInput, { flex: 1, paddingStart: 8 }]}>
-                                <Input placeholder='Last Name' value={state.lastName} onChangeText={lastName => {
-                                    setState({ ...state, lastName })
-                                }} />
-                            </Item>
-                        </HorizontalView>
-                        <Item rounded last style={styles.RegisterInput}>
-                            <Input placeholder='Enter Email Address' value={state.email} onChangeText={email => {
-                                setState({ ...state, email })
-                            }} />
-                        </Item>
-                        <Item rounded last style={styles.RegisterInput}>
-                            <Input textContentType='password' secureTextEntry={!state.passwordShow} placeholder="Create your strong password" value={state.password} onChangeText={password => {
-                                setState({ ...state, password })
-                            }} />
-                            <Icon active name={state.passwordShow ? 'eye-off' : 'eye'} onPress={() => setState({ ...state, passwordShow: !state.passwordShow })} />
-                        </Item>
-                        <Item rounded last style={styles.RegisterInput}>
-                            <Input textContentType='password' secureTextEntry={!state.passwordVerifyShow} placeholder="Repeat your password" value={state.passwordVerify} onChangeText={passwordVerify => {
-                                setState({ ...state, passwordVerify })
-                            }} />
-                            <Icon active name={state.passwordVerifyShow ? 'eye-off' : 'eye'} onPress={() => setState({ ...state, passwordVerifyShow: !state.passwordVerifyShow })} />
-                        </Item>
-                        <Button success rounded disabled={state.loading} block onPress={onSignUpPress} style={{ marginVertical: 8 }}>
-                            {state.loading ? <Spinner color='white' size='small' /> : <Text>SIGN UP</Text>}
-                        </Button>
-                        <Button>
-                            <Text>REGISTER</Text>
-                        </Button>
-                    </Form>
-                </Content>
-            </Container>
+                                <Button success rounded disabled={state.loading} block onPress={onSignUpPress} style={styles.Input}>
+                                    {state.loading ? <Spinner color='white' size='small' /> : <Text>SIGN UP</Text>}
+                                </Button>
+                            </Form>
+                        </View>
+                    </Content>
+                </Container>
+            </BlurView>
         </Root>
     )
 }
 
 
 const styles = StyleSheet.create({
+
+    container: { backgroundColor: 'transparent', flex: 1 },
+    backButton: { alignSelf: 'flex-end', position: 'absolute', end: -8, top: -8 },
+    contentContainer: { flex: 1, justifyContent: 'center', padding: 16 },
     LoginRoot: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'stretch',
         backgroundColor: '#1114'
     },
-    LoginBody: {
+    RegisterBody: {
         margin: 20,
         backgroundColor: "white",
         borderRadius: 16,
@@ -137,41 +127,14 @@ const styles = StyleSheet.create({
         shadowRadius: 3.84,
         elevation: 5
     },
-    LoginForm: {
+    RegForm: {
         justifyContent: 'space-between',
         alignItems: 'stretch',
         margin: 8,
         marginTop: 20,
         flexGrow: 1
     },
-    LoginInput: {
+    Input: {
         marginVertical: 8
     },
-    RegisterRoot: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'stretch',
-        backgroundColor: 'black',
-    },
-    RegisterBody: {
-        backgroundColor: 'black',
-        color: 'white'
-    },
-    RegisterBodyHeader: {
-        flexDirection: "row",
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 8,
-        borderBottomColor: 'white',
-        borderBottomWidth: StyleSheet.hairlineWidth
-    },
-    RegisterForm: {
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        margin: 16,
-    },
-    RegisterInput: {
-        backgroundColor: 'white',
-        margin: 16,
-    }
 })

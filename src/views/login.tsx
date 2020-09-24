@@ -18,12 +18,12 @@ export function Login() {
     }
 
     return (
-        <LoginForm onSuccess={successCallback} />
+        <LoginForm onSuccess={successCallback} navigation={navigation} />
     )
 }
 
 
-function LoginForm({ onSuccess }) {
+function LoginForm({ onSuccess, navigation }) {
     const [state, setState] = useState({
         passwordShow: false,
         email: '',
@@ -46,20 +46,19 @@ function LoginForm({ onSuccess }) {
     return (
         <Root>
             <BlurView tint='dark' intensity={100} style={styles.LoginRoot}>
-                <Container style={{ backgroundColor: 'transparent', flex: 1 }}>
+                <Container style={styles.loginContainer}>
                     {/* @ts-ignore */}
-                    <Content showsVerticalScrollIndicator={false} bounces={false} contentContainerStyle={{ flex: 1, justifyContent: 'center', padding: 16 }}>
+                    <Content showsVerticalScrollIndicator={false} bounces={false} contentContainerStyle={styles.loginContentContainer}>
                         <View style={styles.LoginBody}>
+                            <Button danger rounded transparent onPress={() => navigation.goBack()} style={styles.backButton}>
+                                <Icon name='close-circle' />
+                            </Button>
                             <Form style={styles.LoginForm}>
                                 <Item rounded last style={styles.LoginInput}>
-                                    <Input textContentType='emailAddress' placeholder="Email" value={state.email} autoCapitalize='none' onChangeText={email => {
-                                        setState({ ...state, email })
-                                    }} />
+                                    <Input textContentType='emailAddress' placeholder="Email" value={state.email} autoCapitalize='none' onChangeText={email => { setState({ ...state, email }) }} />
                                 </Item>
                                 <Item rounded last style={styles.LoginInput}>
-                                    <Input textContentType='password' secureTextEntry={!state.passwordShow} autoCapitalize='none' placeholder="Enter Password" value={state.password} onChangeText={password => {
-                                        setState({ ...state, password })
-                                    }} />
+                                    <Input textContentType='password' secureTextEntry={!state.passwordShow} autoCapitalize='none' placeholder="Enter Password" value={state.password} onChangeText={password => { setState({ ...state, password }) }} />
                                     <Icon active name={state.passwordShow ? 'eye-off' : 'eye'} onPress={() => setState({ ...state, passwordShow: !state.passwordShow })} />
                                 </Item>
                                 <Button disabled={state.loading} success rounded block onPress={onLoginPress} style={styles.LoginInput}>
@@ -75,6 +74,9 @@ function LoginForm({ onSuccess }) {
 }
 
 const styles = StyleSheet.create({
+    loginContainer: { backgroundColor: 'transparent', flex: 1 },
+    backButton: { alignSelf: 'flex-end', position: 'absolute', end: -8, top: -8 },
+    loginContentContainer: { flex: 1, justifyContent: 'center', padding: 16 },
     LoginRoot: {
         flex: 1,
         justifyContent: 'center',
@@ -107,31 +109,4 @@ const styles = StyleSheet.create({
     LoginInput: {
         marginVertical: 8
     },
-    RegisterRoot: {
-        flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'stretch',
-        backgroundColor: 'black',
-    },
-    RegisterBody: {
-        backgroundColor: 'black',
-        color: 'white'
-    },
-    RegisterBodyHeader: {
-        flexDirection: "row",
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        padding: 8,
-        borderBottomColor: 'white',
-        borderBottomWidth: StyleSheet.hairlineWidth
-    },
-    RegisterForm: {
-        justifyContent: 'center',
-        alignItems: 'stretch',
-        margin: 16,
-    },
-    RegisterInput: {
-        backgroundColor: 'white',
-        margin: 16,
-    }
 })

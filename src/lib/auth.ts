@@ -19,7 +19,10 @@ export default class Auth {
     async login(username, password) {
         try {
             await this.validateLogin({ email: username, password })
-            const objectRaw = await SecureStorage.getItemAsync(`protected.${username}`)
+
+            // because the username contains '@' which is not allowed as a key  name, replace '@' with '_'
+            const key = `protected.${username.replace('@', '_')}`
+            const objectRaw = await SecureStorage.getItemAsync(key)
             if (!objectRaw) {
                 throw new Error('User not found!')
             }
@@ -59,16 +62,18 @@ export default class Auth {
      * @param data 
      */
     async register(data) {
-        const { email} = data
+        const { email } = data
         try {
             await this.validateRegister(data)
 
-            const objectRaw = await SecureStorage.getItemAsync(`protected.${email}`)
+            // because the username contains '@' which is not allowed as a key  name, replace '@' with '_'
+            const key = `protected.${email.replace('@', '_')}`
+            const objectRaw = await SecureStorage.getItemAsync(key)
             if (objectRaw) {
                 throw new Error('User already exists!')
             }
             const user = JSON.stringify(data)
-            await SecureStorage.setItemAsync(`protected.${email}`, user)
+            await SecureStorage.setItemAsync(key, user)
 
             return new User(data)
         } catch (e) {
@@ -83,12 +88,13 @@ export default class Auth {
      */
     protected validateRegister({ email, password, firstName, lastName, country, dateOfBirth, role }) {
         return new Promise((res, rej) => {
-            if (email && password && firstName && lastName && country && dateOfBirth && role) {
-                if (!validator.isEmail(email)) return rej(new Error("Invalid email!"))
-                if (!validator.matches(password, new RegExp('^[a-zA-Z0-9]{6,30}$'))) return rej(new Error("Password format not accepted!"))
-                // if (!validator.equals(password, passwordVerify)) return rej(new Error("Password must match!"))
-                if (!validator.matches(dateOfBirth, /^\d{4}-\d{1,2}-\d{1,2}$/)) return rej(new Error("Provide a valid date of birth!"))
-                if (!validator.matches(role, /player|manager/)) return rej(new Error("Provide a valid role"))
+            if (email && password && firstName && lastName) {
+                if (!validator.isEmail(email)) {
+                    return rej(new Error("Invalid email!"))
+                }
+                if (!validator.matches(password, new RegExp('^[a-zA-Z0-9]{6,30}$'))) {
+                    return rej(new Error("Password format not accepted!"))
+                }
             } else {
                 return rej(new Error("Required fields have been omitted!"))
             }
@@ -96,4 +102,31 @@ export default class Auth {
             res(true)
         })
     }
+
+    /**
+     * Logic to delete a user account from application. 
+     * 
+     * The user must provide a password before attempting to delete the specified account
+     * 
+     * @param email 
+     * @param password 
+     */
+    async deleteUser(email, password) {
+        try {
+            // because the username contains '@' which is not allowed as a key  name, replace '@' with '_'
+            const key = `protected.${email.replace('@', '_')}`
+            const objectRaw = await SecureStorage.getItemAsync(key)
+            if (!objectRaw) {
+                throw new Error('User not found!')
+            }
+            if (JSON.parse(objectRaw) !== password) {
+                throw new Error('Password is incorrect')
+            }
+            await SecureStorage.deleteItemAsync(key)
+            return true
+        } catch (e) {
+            throw e
+        }
+    }
+
 }

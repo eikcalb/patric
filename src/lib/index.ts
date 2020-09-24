@@ -47,6 +47,15 @@ export class Application {
     }
 
     /**
+     * Deletes the saved user session
+     */
+    async deleteUserSession() {
+        return await SecureStorage.deleteItemAsync('app.usersession')
+    }
+
+
+
+    /**
      * Opens image picker for user to select an image
      */
     async getMediaPicture() {
@@ -105,6 +114,16 @@ export class Application {
 
         // Return the new user object
         return this.user
+    }
+
+    /**
+     * Exposes logic for deleting user data from application. Intended user's email and password must be specified.
+     * 
+     * @param email 
+     * @param password 
+     */
+    async deleteUser(email,password):Promise<boolean>{
+        return new Auth(this).deleteUser(email,password)
     }
 }
 
